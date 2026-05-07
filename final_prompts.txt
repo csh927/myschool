@@ -1,0 +1,28 @@
+[동양미래대학교 노션 스타일 홈페이지 제작 프롬프트 요약]
+
+1. 프로젝트 개요:
+- 목표: 동양미래대학교(DMU) 브랜딩 이미지를 입힌 노션(Notion) 스타일의 개인 포털 제작.
+- 주요 메뉴: 학교 소개, 학과 소개, 나의 포트폴리오, 관련 회사, 학교 생활, 실시간 게시판.
+
+2. 핵심 기술 요구사항 (Prompt):
+"NPM이나 별도의 빌드 도구 없이 HTML/CSS/JS 파일 하나만으로 즉시 실행 가능한 홈페이지를 만들어줘. Tailwind CSS와 Lucide Icons를 CDN으로 연결하고, Firebase 10 SDK를 통해 실시간 게시판(Firestore Database) 기능을 구현해줘."
+
+3. UI/UX 디자인 가이드:
+- "노션의 실제 다크 모드 배경색(#191919)과 사이드바 구조를 그대로 재현해줘."
+- "메인 대시보드는 노션의 '최근 방문' 카드 스타일(Bento Grid)로 구성해줘."
+- "유리 질감(Glassmorphism)과 은은한 배경 배경 글로우(Glow) 효과를 추가해줘."
+- "동양미래대학교 공식 로고와 캠퍼스 이미지를 메뉴 곳곳에 배치해줘."
+
+4. 기능 및 구조화:
+- "게시판 메뉴는 별도의 board.html로 분리하고, 메인 index.html과 상호 연결해줘."
+- "게시판은 단순한 리스트가 아닌 데이터베이스 테이블 형식으로 만들고, 글 쓰기 시 Firebase DB에 즉시 저장되게 해줘."
+- "나만의 'AI Note' 아이콘 이미지를 AI로 직접 생성해서 홈페이지 로고로 적용해줘."
+
+5. Firebase 설정 (Reference):
+- apiKey: "AIzaSyDsEhd8_n_ab_NVWLlx6K-7Y_-1xcnN47w"
+- projectId: "my-school-homepage"
+- Firestore Rules: "allow read, write: if true;"
+
+---
+*작성일자: 2026년 5월 7일*
+*이 문서는 사용자의 기획 프롬프트를 바탕으로 AI가 자동 정리한 최종 기록입니다.*

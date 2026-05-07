@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DMU Personal Workspace</title>
+    <title>DMU Personal Workspace - Responsive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -23,11 +23,12 @@
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--notion-bg);
             color: var(--notion-text);
-            overflow: hidden;
             margin: 0;
-            -webkit-font-smoothing: antialiased;
+            display: flex;
+            transition: all 0.3s;
         }
 
+        /* Sidebar Styles */
         .sidebar {
             width: 250px;
             background-color: var(--notion-sidebar);
@@ -35,31 +36,51 @@
             border-right: 1px solid var(--notion-border);
             display: flex;
             flex-direction: column;
+            position: fixed;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar-header { padding: 12px 14px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .sidebar-header { padding: 12px 14px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--notion-border); }
 
         .nav-item {
-            display: flex; align-items: center; gap: 10px; padding: 4px 14px; margin: 1px 0;
+            display: flex; align-items: center; gap: 10px; padding: 6px 14px; margin: 1px 0;
             cursor: pointer; font-size: 13px; color: var(--notion-text); text-decoration: none;
+            transition: background 0.1s;
         }
 
         .nav-item:hover { background-color: var(--notion-hover); }
-        .nav-item.active { background-color: var(--notion-hover); }
+        .nav-item.active { background-color: var(--notion-hover); font-weight: 600; }
 
         .section-title { padding: 14px 16px 4px; font-size: 11px; font-weight: 600; color: var(--notion-subtext); text-transform: uppercase; }
 
-        .main-content { flex: 1; height: 100vh; overflow-y: auto; }
-        .page-container { max-width: 900px; margin: 0 auto; padding: 50px 80px; }
+        .main-content { flex: 1; height: 100vh; overflow-y: auto; margin-left: 250px; transition: margin 0.3s; }
 
-        .notion-card {
-            width: 140px; height: 180px; background-color: var(--card-bg); border: 1px solid var(--notion-border);
-            border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 10px;
-            cursor: pointer; transition: background 0.2s;
+        .page-container { max-width: 1000px; margin: 0 auto; padding: 80px 100px; transition: padding 0.3s; }
+
+        /* Mobile Adjustments */
+        .mobile-header {
+            display: none; height: 50px; background: var(--notion-sidebar); border-bottom: 1px solid var(--notion-border);
+            position: sticky; top: 0; align-items: center; padding: 0 16px; z-index: 900;
         }
 
-        .notion-card:hover { background-color: #2f2f2f; }
-        .badge-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .page-container { padding: 40px 24px; }
+            .mobile-header { display: flex; }
+            .notion-card { width: 100% !important; margin-bottom: 12px; }
+            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 950; }
+            .overlay.active { display: block; }
+        }
+
+        .notion-card {
+            width: 160px; height: 190px; background-color: var(--card-bg); border: 1px solid var(--notion-border);
+            border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .notion-card:hover { border-color: rgba(255,255,255,0.2); background: #2f2f2f; transform: translateY(-2px); }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); }
@@ -67,29 +88,34 @@
 </head>
 
 <body class="flex">
-    <aside class="sidebar">
+    <!-- Mobile Hamburger Menu Button -->
+    <div class="mobile-header">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 hover:bg-white/10 rounded-md transition">
+            <i data-lucide="menu" class="w-6 h-6 text-white"></i>
+        </button>
+        <div class="ml-3 font-bold text-sm tracking-tight">Notion AI</div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <img src="assets/ai_note_icon.png" alt="AI Note Icon" class="h-6 w-6 object-contain">
+            <img src="assets/ai_note_icon.png" class="h-6 w-6 object-contain">
             <span>Notion AI</span>
         </div>
 
-        <div class="nav-item"><i data-lucide="search" class="w-4 h-4 text-slate-500"></i><span>검색</span></div>
-        <div class="nav-item"><i data-lucide="clock" class="w-4 h-4 text-slate-500"></i><span>업데이트</span></div>
-        <div class="nav-item"><i data-lucide="settings" class="w-4 h-4 text-slate-500"></i><span>설정</span></div>
-
-        <div class="section-title">최근 항목</div>
-        <div class="nav-item active" onclick="showPage('home', this)"><i data-lucide="layout-grid" class="w-4 h-4 text-slate-400"></i><span>홈 페이지</span></div>
-        <div class="nav-item" onclick="showPage('dept', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학과 소개</span></div>
-
+        <div class="nav-item active" onclick="showPage('home', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>홈 페이지</span></div>
+        
         <div class="section-title">개인 페이지</div>
-        <div class="nav-item" onclick="showPage('school', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학교 소개</span></div>
-        <div class="nav-item" onclick="showPage('dept', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학과 소개</span></div>
-        <div class="nav-item" onclick="showPage('portfolio', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>나의 포트폴리오</span></div>
-        <div class="nav-item" onclick="showPage('company', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>관련 회사</span></div>
-        <div class="nav-item" onclick="showPage('life', this)"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학교 생활</span></div>
+        <div class="nav-item" onclick="showPage('school', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="file-text" class="w-4 h-4"></i><span>학교 소개</span></div>
+        <div class="nav-item" onclick="showPage('dept', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="file-text" class="w-4 h-4"></i><span>학과 소개</span></div>
+        <div class="nav-item" onclick="showPage('portfolio', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="file-text" class="w-4 h-4"></i><span>나의 포트폴리오</span></div>
+        <div class="nav-item" onclick="showPage('company', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="file-text" class="w-4 h-4"></i><span>관련 회사</span></div>
+        <div class="nav-item" onclick="showPage('life', this); if(window.innerWidth <= 768) toggleSidebar();"><i data-lucide="file-text" class="w-4 h-4"></i><span>학교 생활</span></div>
         
         <div class="section-title">데이터베이스</div>
-        <a href="board.html" class="nav-item"><i data-lucide="table" class="w-4 h-4 text-slate-400"></i><span>실시간 게시판</span></a>
+        <a href="board.html" class="nav-item"><i data-lucide="table" class="w-4 h-4"></i><span>실시간 게시판</span></a>
     </aside>
 
     <main class="main-content">
@@ -103,43 +129,43 @@
                 <div class="flex flex-wrap gap-4">
                     <div class="notion-card" onclick="showPage('school')">
                         <i data-lucide="file-text" class="w-6 h-6 text-slate-400"></i>
-                        <div class="text-[13px] font-medium leading-tight">학교 소개</div>
-                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">
-                            <span class="badge-dot bg-purple-500"></span> 오늘
-                        </div>
+                        <div class="text-[14px] font-semibold leading-tight">학교 소개</div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">📄 오늘 방문</div>
                     </div>
                     <div class="notion-card" onclick="showPage('dept')">
                         <i data-lucide="file-text" class="w-6 h-6 text-slate-400"></i>
-                        <div class="text-[13px] font-medium leading-tight">학과 소개</div>
-                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">
-                            <span class="badge-dot bg-purple-500"></span> 오늘
-                        </div>
+                        <div class="text-[14px] font-semibold leading-tight">학과 소개</div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">📄 오늘 방문</div>
                     </div>
                     <div class="notion-card" onclick="showPage('portfolio')">
                         <i data-lucide="file-text" class="w-6 h-6 text-slate-400"></i>
-                        <div class="text-[13px] font-medium leading-tight">나의 포트폴리오</div>
-                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">
-                            <span class="badge-dot bg-blue-500"></span> 어제
-                        </div>
-                    </div>
-                    <div class="notion-card flex items-center justify-center opacity-40 hover:opacity-100">
-                        <i data-lucide="plus" class="w-6 h-6"></i>
+                        <div class="text-[14px] font-semibold leading-tight">나의 포트폴리오</div>
+                        <div class="mt-auto flex items-center gap-2 text-[10px] text-slate-500">📄 업데이트됨</div>
                     </div>
                 </div>
             `,
-            school: `<h1 class="text-3xl font-bold mb-4">🏠 학교 소개</h1><p class="text-slate-400">동양미래대학교의 역사와 비전을 소개합니다.</p>`,
-            dept: `<h1 class="text-3xl font-bold mb-4">📚 학과 소개</h1><p class="text-slate-400">전공별 교육 과정과 진로를 안내합니다.</p>`,
-            portfolio: `<h1 class="text-3xl font-bold mb-4">🎨 나의 포트폴리오</h1><p class="text-slate-400">지금까지 진행한 프로젝트들을 정리한 공간입니다.</p>`,
-            company: `<h1 class="text-3xl font-bold mb-4">🏢 관련 회사</h1><p class="text-slate-400">주요 산학 협력 업체 및 취업 연계 회사 정보입니다.</p>`,
-            life: `<h1 class="text-3xl font-bold mb-4">✨ 학교 생활</h1><p class="text-slate-400">캠퍼스 라이프, 동아리, 시설 안내 페이지입니다.</p>`
+            school: `<h1>🏠 학교 소개</h1><p class="text-slate-400 mt-4 leading-relaxed">최첨단 교육 인프라를 갖춘 동양미래대학교입니다.</p>`,
+            dept: `<h1>📚 학과 소개</h1><p class="text-slate-400 mt-4">창의적인 미래 인재를 양성하는 다양한 학부 정보를 확인해 보세요.</p>`,
+            portfolio: `<h1>🎨 나의 포트폴리오</h1><p class="text-slate-400 mt-4">지금까지 진행한 AI 프로젝트와 웹 작업물들의 모음입니다.</p>`,
+            company: `<h1>🏢 관련 회사</h1><p class="text-slate-400 mt-4">주요 IT 산학 협력 업체 리스트입니다.</p>`,
+            life: `<h1>✨ 학교 생활</h1><p class="text-slate-400 mt-4">활기찬 캠퍼스 활동과 학생 편의 시설 안내입니다.</p>`
         };
 
-        window.showPage = (id, el) => {
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function showPage(id, el) {
             if (el) {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 el.classList.add('active');
             }
-            document.getElementById('content-body').innerHTML = pages[id];
+            document.getElementById('content-body').innerHTML = `
+                <div class="fade-in">
+                    ${pages[id]}
+                </div>
+            `;
             lucide.createIcons();
             document.querySelector('.main-content').scrollTop = 0;
         }

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DMU Board - Live Database</title>
+    <title>DMU Board - Live Database (Responsive)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,138 +16,115 @@
             --notion-subtext: rgba(255, 255, 255, 0.4);
             --notion-border: rgba(255, 255, 255, 0.08);
         }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--notion-bg); color: var(--notion-text); margin: 0; display: flex; transition: all 0.3s; }
+        
+        .sidebar { 
+            width: 250px; background-color: var(--notion-sidebar); height: 100vh; 
+            border-right: 1px solid var(--notion-border); position: fixed; z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar.hidden-mobile { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); }
 
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--notion-bg);
-            color: var(--notion-text);
-            margin: 0;
-            display: flex;
+        .main-content { flex: 1; height: 100vh; overflow-y: auto; margin-left: 250px; transition: margin 0.3s; }
+        .page-container { max-width: 1100px; margin: 0 auto; padding: 100px 120px; transition: padding 0.3s; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .page-container { padding: 40px 20px; }
+            .mobile-header { display: flex; }
+            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 950; }
+            .overlay.active { display: block; }
+            .db-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .db-table { min-width: 600px; }
+            .modal-content { padding: 24px !important; margin: 16px; border-radius: 8px !important; }
+            input { font-size: 18px !important; margin-bottom: 20px !important; }
         }
 
-        .sidebar {
-            width: 250px;
-            background-color: var(--notion-sidebar);
-            height: 100vh;
-            border-right: 1px solid var(--notion-border);
-            position: sticky;
-            top: 0;
-            display: flex;
-            flex-direction: column;
+        .mobile-header {
+            display: none; height: 50px; background: var(--notion-sidebar); border-bottom: 1px solid var(--notion-border);
+            position: sticky; top: 0; align-items: center; padding: 0 16px; z-index: 900;
         }
 
-        .sidebar-header {
-            padding: 12px 14px;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--notion-text); text-decoration: none; }
+        .nav-item:hover { background-color: var(--notion-hover); }
+        .section-title { padding: 14px 16px 4px; font-size: 11px; font-weight: 600; color: var(--notion-subtext); text-transform: uppercase; }
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 4px 14px;
-            margin: 1px 0;
-            cursor: pointer;
-            font-size: 13px;
-            color: var(--notion-text);
-            text-decoration: none;
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 1100;
         }
+        .modal-content {
+            background: #252525; border: 1px solid var(--notion-border); width: 100%; max-width: 650px;
+            border-radius: 12px; padding: 48px; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transform: translateY(20px); transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
 
-        .nav-item:hover {
-            background-color: var(--notion-hover);
-        }
+        input, textarea { background: transparent; border: none; outline: none; width: 100%; color: white; border-bottom: 1px solid var(--notion-border); padding: 12px 0; }
+        input { margin-bottom: 32px; font-size: 24px; }
+        textarea { margin-bottom: 24px; line-height: 1.6; }
 
-        .section-title {
-            padding: 14px 16px 4px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--notion-subtext);
-            text-transform: uppercase;
-        }
-
-        .main-content {
-            flex: 1;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .page-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 60px 80px;
-        }
-
-        .db-row {
-            border-bottom: 1px solid var(--notion-border);
-            transition: background 0.1s;
-        }
-
-        .db-row:hover {
-            background-color: rgba(255, 255, 255, 0.03);
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.05);
-        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-
 <body class="flex">
-    <aside class="sidebar py-2">
-        <div class="sidebar-header">
-            <img src="assets/ai_note_icon.png" alt="AI Note Icon" class="h-6 w-6 object-contain">
-            <span>Notion AI</span>
+    <div class="mobile-header">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-md transition hover:bg-white/10">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        <div class="ml-3 font-bold text-sm">Notion AI - Board</div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <div id="write-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i data-lucide="plus-circle"></i> 새 페이지</h2>
+            <input type="text" id="post-title" placeholder="제목">
+            <textarea id="post-content" placeholder="상세 내용" rows="4"></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm text-slate-500">취소</button>
+                <button onclick="window.saveToFirebase()" class="px-6 py-2 bg-blue-600 rounded-lg text-sm font-bold">저장하기</button>
+            </div>
         </div>
-        <a href="index.html" class="nav-item"><i data-lucide="home" class="w-4 h-4 text-slate-500"></i><span>홈
-                페이지</span></a>
+    </div>
 
-        <div class="section-title">개인 페이지</div>
-        <a href="index.html" class="nav-item"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학교
-                소개</span></a>
-        <a href="index.html" class="nav-item"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학과
-                소개</span></a>
-        <a href="index.html" class="nav-item"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>나의
-                포트폴리오</span></a>
-        <a href="index.html" class="nav-item"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>관련
-                회사</span></a>
-        <a href="index.html" class="nav-item"><i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i><span>학교
-                생활</span></a>
-
+    <aside id="sidebar" class="sidebar flex flex-col py-2">
+        <div class="px-4 py-3 mb-2 flex items-center gap-2 font-bold text-sm">
+            <img src="assets/ai_note_icon.png" class="h-6 w-6"> <span>Notion AI</span>
+        </div>
+        <a href="index.html" class="nav-item"><i data-lucide="home" class="w-4 h-4"></i><span>홈 페이지</span></a>
         <div class="section-title">데이터베이스</div>
-        <div class="nav-item bg-[#2c2c2c]"><i data-lucide="table" class="w-4 h-4 text-slate-400"></i><span>실시간
-                게시판</span></div>
+        <div class="nav-item active bg-[#2c2c2c]"><i data-lucide="table" class="w-4 h-4 text-slate-400"></i><span>실시간 게시판</span></div>
     </aside>
 
     <main class="main-content">
         <div class="page-container">
-            <div class="flex justify-between items-end mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                 <div>
-                    <div class="text-[78px] mb-2 leading-none">📋</div>
-                    <h1 class="text-4xl font-bold">실시간 데이터베이스</h1>
-                    <p class="text-slate-500 mt-3 text-sm">Firebase Cloud Firestore 동기화 중</p>
+                    <div class="text-[50px] md:text-[78px] mb-2 leading-none">📋</div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tight">게시판</h1>
                 </div>
-                <button onclick="window.submitPost()"
-                    class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded font-semibold transition flex items-center gap-2">
-                    <i data-lucide="plus" class="w-3 h-3"></i> 데이터 추가
+                <button onclick="openModal()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-3 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> 새 페이지 추가
                 </button>
             </div>
 
-            <div class="border border-white/10 rounded-lg overflow-hidden bg-white/5">
-                <div
-                    class="grid grid-cols-12 gap-4 p-3 bg-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
-                    <div class="col-span-8">항목명 / 상세 내용</div>
-                    <div class="col-span-2 text-center">상태</div>
-                    <div class="col-span-2 text-right">등록일</div>
+            <div class="db-container border border-white/10 rounded-xl overflow-hidden bg-white/5 shadow-2xl">
+                <div class="db-table">
+                    <div class="grid grid-cols-12 gap-4 p-4 bg-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/10">
+                        <div class="col-span-8">제목 / 상세 내용</div>
+                        <div class="col-span-4 text-right">등록일</div>
+                    </div>
+                    <div id="db-content"></div>
                 </div>
-                <div id="db-content"></div>
             </div>
         </div>
     </main>
@@ -169,10 +145,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.submitPost = async () => {
-            const title = prompt("항목 제목을 입력하세요:");
-            const content = prompt("상세 설명을 입력하세요:");
-            if (title) await addDoc(collection(db, "posts"), { title, content: content || "", author: "사용자", createdAt: serverTimestamp() });
+        window.saveToFirebase = async () => {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            if (!title.trim()) return alert("제목을 입력하세요.");
+            await addDoc(collection(db, "posts"), { title, content, createdAt: serverTimestamp() });
+            closeModal();
         };
 
         const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -181,17 +159,27 @@
             list.innerHTML = '';
             snap.forEach(doc => {
                 const data = doc.data();
-                const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : '-';
+                const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : '..';
                 list.innerHTML += `
-                    <div class="grid grid-cols-12 gap-4 p-4 db-row text-sm">
-                        <div class="col-span-8 text-white font-medium">${data.title}<br><span class="text-[12px] text-slate-500">${data.content}</span></div>
-                        <div class="col-span-2 text-center"><span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full uppercase">Active</span></div>
-                        <div class="col-span-2 text-right text-slate-600">${date}</div>
+                    <div class="grid grid-cols-12 gap-4 p-5 border-b border-white/5 hover:bg-white/5 transition text-[13px]">
+                        <div class="col-span-8">
+                            <div class="text-white font-semibold mb-1">${data.title}</div>
+                            <div class="text-slate-500 text-[12px]">${data.content}</div>
+                        </div>
+                        <div class="col-span-4 text-right text-slate-600">${date}</div>
                     </div>`;
             });
             lucide.createIcons();
         });
     </script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        function openModal() { document.getElementById('write-modal').classList.add('active'); }
+        function closeModal() { document.getElementById('write-modal').classList.remove('active'); }
+        lucide.createIcons();
+    </script>
 </body>
-
 </html>
